@@ -34,7 +34,7 @@ chrome.omnibox.setDefaultSuggestion({
                     var description = result.Title + ' (' + result.Year + '), ' + upperFirst(result.Type);
 
                     omniboxResults.push({
-                        content: buildRarbgUrl(result),
+                        content: buildRarbgUrl(result, query),
                         description: description
                     });
                 }
@@ -61,24 +61,28 @@ function findAndRedirect(query) {
         title: query
     }
     window.omdb.get(params, function(err, data) {
-        navigateToUrl(buildRarbgUrl(data));
+        navigateToUrl(buildRarbgUrl(data, query));
     });
 }
 
-function buildRarbgUrl(data) {
-    var id = data.imdbID;
-    var path
-    switch (data.Type) {
-        case 'movie':
-            path = 'torrents.php?imdb=' + id;
-            break;
-        case 'series':
-            path = 'tv/' + id + '/';
-            break;
-        default:
-            path = 'torrents.php?search=' + data.Title + '&category%5B%5D=18&category%5B%5D=41&category%5B%5D=49';
+function buildRarbgUrl(data, query) {
+    try {
+        var id = data.imdbID;
+        var path
+        switch (data.Type) {
+            case 'movie':
+                path = 'torrents.php?imdb=' + id;
+                break;
+            case 'series':
+                path = 'tv/' + id + '/';
+                break;
+            default:
+                path = 'torrents.php?search=' + data.Title + '&category%5B%5D=18&category%5B%5D=41&category%5B%5D=49';
+        }
+        return 'https://rarbg.to/' + path;
+    } catch (e) {
+        return 'https://rarbg.to/torrents.php?search=' + query;
     }
-    return 'https://rarbg.to/' + path;
 }
 
 function navigateToUrl(url) {
